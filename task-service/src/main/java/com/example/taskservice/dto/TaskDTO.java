@@ -24,7 +24,7 @@ public class TaskDTO {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    @NotNull(message = "Status is required")
+    //@NotNull(message = "Status is required")
     private Task.TaskStatus status;
 
     @NotNull(message = "User ID is required")
