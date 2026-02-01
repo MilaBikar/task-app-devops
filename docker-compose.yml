@@ -1,40 +1,138 @@
 version: '3.8'
 
 services:
+  #databases
   task-db:
     image: mysql:8
     container_name: task-db
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: task_db
+      MYSQL_DATABASE: taskdb
     ports:
       - "3316:3306"
     volumes:
-      - task-data:/var/lib/mysql
+      - task_data:/var/lib/mysql
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   user-db:
     image: mysql:8
     container_name: user-db
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: user_db
+      MYSQL_DATABASE: userdb
     ports:
       - "3317:3306"
     volumes:
-      - user-data:/var/lib/mysql
+      - user_data:/var/lib/mysql
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   notification-db:
     image: mysql:8
     container_name: notification-db
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: notification_db
+      MYSQL_DATABASE: notificationdb
     ports:
       - "3318:3306"
     volumes:
-      - notification-data:/var/lib/mysql
+      - notification_data:/var/lib/mysql
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  #microservics
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    networks:
+      - microservices-network
+    depends_on:
+      - task-service
+      - user-service
+      - notification-service
+    restart: unless-stopped
+
+  task-service:
+    build:
+      context: .
+      dockerfile: task-service/Dockerfile
+    container_name: task-service
+    ports:
+      - "8081:8081"
+    networks:
+      - microservices-network
+    depends_on:
+      task-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://task-db:3306/taskdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: user-service
+    ports:
+      - "8082:8082"
+    networks:
+      - microservices-network
+    depends_on:
+      user-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://user-db:3306/userdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    container_name: notification-service
+    ports:
+      - "8083:8083"
+    networks:
+      - microservices-network
+    depends_on:
+      notification-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://notification-db:3306/notificationdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root123
+    restart: unless-stopped
+
+#networks
+networks:
+  microservices-network:
+    driver: bridge
+
+#volumes
 volumes:
-  task-data:
-  user-data:
-  notification-data:
+  task_data:
+  user_data:
+  notification_data:

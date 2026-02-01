@@ -5,7 +5,7 @@ spring:
   application:
     name: task-service
   datasource:
-    url: jdbc:mysql://localhost:3316/task_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://task-db:3306/task_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root123
     driver-class-name: com.mysql.cj.jdbc.Driver
