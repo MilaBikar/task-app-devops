@@ -21,7 +21,7 @@ public class Analytics {
 
     private String eventType;
 
-    private String resourceType; // e.g., "TASK", "USER"
+    private String resourceType;
     private Long resourceId;
 
     private String details;

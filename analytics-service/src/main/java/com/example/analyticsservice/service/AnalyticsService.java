@@ -21,7 +21,7 @@ public class AnalyticsService {
         analytics.setResourceType(analyticsDTO.getResourceType());
         analytics.setResourceId(analyticsDTO.getResourceId());
         analytics.setDetails(analyticsDTO.getDetails());
-        // createdAt is handled by @CreationTimestamp in entity
+
 
         Analytics savedAnalytics = analyticsRepository.save(analytics);
         return mapToDTO(savedAnalytics);

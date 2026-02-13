@@ -56,6 +56,24 @@ services:
       timeout: 5s
       retries: 5
 
+  analytics-db:
+    image: mysql:8
+    container_name: analytics-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: analyticsdb
+    ports:
+      - "3319:3306"
+    volumes:
+      - analytics_data:/var/lib/mysql
+    networks:
+      - microservices-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   #microservics
   gateway:
     build:
@@ -136,3 +154,4 @@ volumes:
   task_data:
   user_data:
   notification_data:
+  analytics_data:
