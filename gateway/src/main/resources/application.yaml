@@ -22,6 +22,11 @@ spring:
           predicates:
             - Path=/api/notifications/**
 
+        - id: analytics-service
+          uri: http://analytics-service:8084
+          predicates:
+            - Path=/api/analytics/**
+
 management:
   endpoints:
     web:
