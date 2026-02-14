@@ -126,6 +126,8 @@ services:
       - SPRING_DATASOURCE_PASSWORD=root123
     restart: unless-stopped
 
+
+
   notification-service:
     build:
       context: .
