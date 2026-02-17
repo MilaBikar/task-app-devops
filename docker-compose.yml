@@ -199,24 +199,6 @@ services:
       - SPRING_RABBITMQ_PASSWORD=admin123
     restart: unless-stopped
 
-  analytics-service:
-    build:
-      context: .
-      dockerfile: analytics-service/Dockerfile
-    container_name: analytics-service
-    ports:
-      - "8084:8084"
-    networks:
-      - microservices-network
-    depends_on:
-      analytics-db:
-        condition: service_healthy
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://analytics-db:3306/analyticsdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root123
-    restart: unless-stopped
-
 #networks
 networks:
   microservices-network:
