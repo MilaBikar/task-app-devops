@@ -23,6 +23,14 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
+      - name: SonarCloud analysis
+        env:
+          SONAR_TOKEN:${{secrets.SONAR_TOKEN}}
+        run: mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+         -Dsonar.projectKey=MilaBikar_task-app-devops
+         -Dsonar.organization=milabikar
+         -Dsonar.host.url=https://so
+
       - name: Build Docker images
         run: docker compose build
 
