@@ -2,9 +2,11 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - '**'
 
 jobs:
   build:
@@ -32,6 +34,7 @@ jobs:
             -Dsonar.organization=milabikar \
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.qualitygate.wait=true
+
 
 
 
