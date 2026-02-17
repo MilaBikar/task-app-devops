@@ -1,6 +1,8 @@
 package com.example.taskservice.service;
 
 import com.example.taskservice.dto.TaskDTO;
+import com.example.taskservice.event.TaskEvent;
+import com.example.taskservice.messaging.TaskEventPublisher;
 import com.example.taskservice.model.Task;
 import com.example.taskservice.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskEventPublisher taskEventPublisher;
 
     @Transactional(readOnly = true)
     public List<TaskDTO> getAllTasks() {
@@ -56,6 +59,16 @@ public class TaskService {
         Task task = convertToEntity(taskDTO);
         Task savedTask = taskRepository.save(task);
         log.info("Task created with id: {}", savedTask.getId());
+
+        taskEventPublisher.publishTaskEvent(
+                TaskEvent.created(
+                        savedTask.getId(),
+                        savedTask.getTitle(),
+                        savedTask.getUserId(),
+                        savedTask.getStatus().name()
+                )
+        );
+
         return convertToDTO(savedTask);
     }
 
@@ -72,17 +85,31 @@ public class TaskService {
 
         Task updatedTask = taskRepository.save(existingTask);
         log.info("Task updated: {}", updatedTask.getId());
+
+        taskEventPublisher.publishTaskEvent(
+                TaskEvent.updated(
+                        updatedTask.getId(),
+                        updatedTask.getTitle(),
+                        updatedTask.getUserId(),
+                        updatedTask.getStatus().name()
+                )
+        );
+
         return convertToDTO(updatedTask);
     }
 
     @Transactional
     public void deleteTask(Long id) {
         log.info("Deleting task with id: {}", id);
-        if (!taskRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Task not found with id: " + id);
-        }
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+
         taskRepository.deleteById(id);
         log.info("Task deleted: {}", id);
+
+        taskEventPublisher.publishTaskEvent(
+                TaskEvent.deleted(task.getId(), task.getUserId())
+        );
     }
 
     private TaskDTO convertToDTO(Task task) {
