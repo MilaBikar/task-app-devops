@@ -1,6 +1,8 @@
 package com.example.taskservice.service;
 
 import com.example.taskservice.dto.TaskDTO;
+import com.example.taskservice.event.TaskEvent;
+import com.example.taskservice.messaging.TaskEventPublisher;
 import com.example.taskservice.model.Task;
 import com.example.taskservice.repository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +27,9 @@ class TaskServiceTest {
 
     @Mock
     private TaskRepository taskRepository;
+
+    @Mock
+    private TaskEventPublisher taskEventPublisher;
 
     @InjectMocks
     private TaskService taskService;
@@ -62,6 +67,7 @@ class TaskServiceTest {
         assertEquals(1L, result.getUserId());
 
         verify(taskRepository, times(1)).save(any(Task.class));
+        verify(taskEventPublisher, times(1)).publishTaskEvent(any(TaskEvent.class));
     }
 
     @Test
@@ -74,6 +80,7 @@ class TaskServiceTest {
 
         assertNotNull(result);
         verify(taskRepository, times(1)).save(any(Task.class));
+        verify(taskEventPublisher, times(1)).publishTaskEvent(any(TaskEvent.class));
     }
 
     @Test
@@ -87,6 +94,7 @@ class TaskServiceTest {
         assertEquals(1L, result.getId());
         assertEquals("Test Task", result.getTitle());
         verify(taskRepository, times(1)).findById(1L);
+        verifyNoInteractions(taskEventPublisher);
     }
 
     @Test
@@ -100,6 +108,7 @@ class TaskServiceTest {
         );
 
         assertEquals("Task not found with id: 999", exception.getMessage());
+        verifyNoInteractions(taskEventPublisher);
     }
 
     @Test
@@ -119,6 +128,7 @@ class TaskServiceTest {
         assertEquals("Test Task", result.get(0).getTitle());
         assertEquals("Task 2", result.get(1).getTitle());
         verify(taskRepository, times(1)).findAll();
+        verifyNoInteractions(taskEventPublisher);
     }
 
     @Test
@@ -132,6 +142,7 @@ class TaskServiceTest {
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getUserId());
         verify(taskRepository, times(1)).findByUserId(1L);
+        verifyNoInteractions(taskEventPublisher);
     }
 
     @Test
@@ -146,6 +157,7 @@ class TaskServiceTest {
         assertEquals(1, result.size());
         assertEquals(Task.TaskStatus.TODO, result.get(0).getStatus());
         verify(taskRepository, times(1)).findByStatus(Task.TaskStatus.TODO);
+        verifyNoInteractions(taskEventPublisher);
     }
 
     @Test
@@ -165,24 +177,26 @@ class TaskServiceTest {
         assertNotNull(result);
         verify(taskRepository, times(1)).findById(1L);
         verify(taskRepository, times(1)).save(any(Task.class));
+        verify(taskEventPublisher, times(1)).publishTaskEvent(any(TaskEvent.class));
     }
 
     @Test
     @DisplayName("Should delete task successfully")
     void shouldDeleteTaskSuccessfully() {
-        when(taskRepository.existsById(1L)).thenReturn(true);
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
         doNothing().when(taskRepository).deleteById(1L);
 
         taskService.deleteTask(1L);
 
-        verify(taskRepository, times(1)).existsById(1L);
+        verify(taskRepository, times(1)).findById(1L);
         verify(taskRepository, times(1)).deleteById(1L);
+        verify(taskEventPublisher, times(1)).publishTaskEvent(any(TaskEvent.class));
     }
 
     @Test
     @DisplayName("Should throw exception when deleting non-existent task")
     void shouldThrowExceptionWhenDeletingNonExistentTask() {
-        when(taskRepository.existsById(999L)).thenReturn(false);
+        when(taskRepository.findById(999L)).thenReturn(Optional.empty());
 
         TaskService.ResourceNotFoundException exception = assertThrows(
                 TaskService.ResourceNotFoundException.class,
@@ -191,6 +205,7 @@ class TaskServiceTest {
 
         assertEquals("Task not found with id: 999", exception.getMessage());
         verify(taskRepository, never()).deleteById(anyLong());
+        verifyNoInteractions(taskEventPublisher);
     }
 
     @Test
@@ -203,5 +218,36 @@ class TaskServiceTest {
 
         assertNotNull(result);
         verify(taskRepository, times(1)).save(any(Task.class));
+        verify(taskEventPublisher, times(1)).publishTaskEvent(any(TaskEvent.class));
+    }
+
+    @Test
+    @DisplayName("Should publish TASK_CREATED event with correct data")
+    void shouldPublishCorrectEventOnCreate() {
+        when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+
+        taskService.createTask(testTaskDTO);
+
+        verify(taskEventPublisher).publishTaskEvent(argThat(event ->
+                event.getEventType().equals("TASK_CREATED") &&
+                        event.getTaskId().equals(1L) &&
+                        event.getUserId().equals(1L) &&
+                        event.getTitle().equals("Test Task")
+        ));
+    }
+
+    @Test
+    @DisplayName("Should publish TASK_DELETED event with correct data")
+    void shouldPublishCorrectEventOnDelete() {
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(testTask));
+        doNothing().when(taskRepository).deleteById(1L);
+
+        taskService.deleteTask(1L);
+
+        verify(taskEventPublisher).publishTaskEvent(argThat(event ->
+                event.getEventType().equals("TASK_DELETED") &&
+                        event.getTaskId().equals(1L) &&
+                        event.getUserId().equals(1L)
+        ));
     }
 }

@@ -20,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.example.taskservice.messaging.TaskEventPublisher;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -35,6 +38,9 @@ class TaskControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private TaskEventPublisher taskEventPublisher;
 
     @BeforeEach
     void setUp() {
