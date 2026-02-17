@@ -1,11 +1,11 @@
 server:
-  port: 8083
+  port: 8084
 
 spring:
   application:
-    name: notification-service
+    name: analytics-service
   datasource:
-    url: jdbc:mysql://notification-db:3306/notificationdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://analytics-db:3306/analyticsdb?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
     username: root
     password: root123
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -30,4 +30,4 @@ management:
 
 logging:
   level:
-    com.example.notificationservice: DEBUG
+    com.example.analyticsservice: DEBUG
