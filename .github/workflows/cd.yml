@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Stop old containers (force remove)
-        run: docker compose down -v --remove-orphans
+        run: docker compose down --remove-orphans
 
       - name: Build and start containers
         run: docker compose up -d --build
