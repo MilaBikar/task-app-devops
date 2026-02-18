@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 21,
+  "agentName": "MILAASUS",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus4.actions.githubusercontent.com/PXMlIMNqTWRuyksyfaXsJ5dlGuGFtMyekX6iRlWzafvS7WlEUu/",
+  "gitHubUrl": "https://github.com/MilaBikar/task-app-devops",
+  "workFolder": "_work",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}
