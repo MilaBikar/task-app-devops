@@ -1,0 +1,31 @@
+name: CD - Local Docker Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Stop old containers
+        run: docker compose down
+
+      - name: Build and start containers
+        run: docker compose up -d --build
+
+      - name: Wait for services to start
+        run: timeout /t 30
+
+      - name: Health check - All services
+        run: |
+          curl --fail http://localhost:8080/actuator/health
+          curl --fail http://localhost:8081/actuator/health
+          curl --fail http://localhost:8082/actuator/health
+          curl --fail http://localhost:8083/actuator/health
+          curl --fail http://localhost:8084/actuator/health
