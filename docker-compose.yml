@@ -92,6 +92,29 @@ services:
       timeout: 5s
       retries: 5
 
+#prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - microservices-network
+
+#grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - microservices-network
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+
   #microservices
   gateway:
     build:
