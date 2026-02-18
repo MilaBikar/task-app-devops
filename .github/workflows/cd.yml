@@ -13,8 +13,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Stop old containers
-        run: docker compose down
+      - name: Stop old containers (force remove)
+        run: docker compose down -v --remove-orphans
 
       - name: Build and start containers
         run: docker compose up -d --build

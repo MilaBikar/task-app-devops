@@ -40,3 +40,6 @@ spring-boot-devtools.properties
 # Database
 *.db
 *.sqlite
+
+# Self-hosted runner working directory
+actions-runner/_work/
