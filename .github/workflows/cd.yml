@@ -24,8 +24,9 @@ jobs:
 
       - name: Health check - All services
         run: |
-          curl --fail http://localhost:8080/actuator/health
-          curl --fail http://localhost:8081/actuator/health
-          curl --fail http://localhost:8082/actuator/health
-          curl --fail http://localhost:8083/actuator/health
-          curl --fail http://localhost:8084/actuator/health
+          $ports = @(8080,8081,8082,8083,8084)
+          foreach ($port in $ports) {
+              $resp = Invoke-WebRequest "http://localhost:$port/actuator/health" -UseBasicParsing
+              if ($resp.StatusCode -ne 200) { throw "Service on port $port not healthy" }
+          }
+      
