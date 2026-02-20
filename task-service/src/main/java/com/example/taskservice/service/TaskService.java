@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class TaskService {
         log.info("Fetching all tasks");
         return taskRepository.findAll().stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -43,7 +42,7 @@ public class TaskService {
         log.info("Fetching tasks for user: {}", userId);
         return taskRepository.findByUserId(userId).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +50,7 @@ public class TaskService {
         log.info("Fetching tasks with status: {}", status);
         return taskRepository.findByStatus(status).stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional

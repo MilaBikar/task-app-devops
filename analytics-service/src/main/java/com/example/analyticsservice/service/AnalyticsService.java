@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,13 +29,13 @@ public class AnalyticsService {
     public List<AnalyticsDTO> getAllEvents() {
         return analyticsRepository.findAll().stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<AnalyticsDTO> getEventsByType(String eventType) {
         return analyticsRepository.findByEventType(eventType).stream()
                 .map(this::mapToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private AnalyticsDTO mapToDTO(Analytics analytics) {
