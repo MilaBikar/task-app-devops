@@ -63,4 +63,9 @@ public class TaskController {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/error-test")
+    public String error() {
+        throw new RuntimeException("Namerna greška za Grafanu!");
+    }
 }
