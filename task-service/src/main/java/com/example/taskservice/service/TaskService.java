@@ -20,6 +20,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final TaskEventPublisher taskEventPublisher;
+    private static final String TASK_NOT_FOUND = "Task not found with id: ";
 
     @Transactional(readOnly = true)
     public List<TaskDTO> getAllTasks() {
@@ -33,7 +34,7 @@ public class TaskService {
     public TaskDTO getTaskById(Long id) {
         log.info("Fetching task with id: {}", id);
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(TASK_NOT_FOUND + id));
         return convertToDTO(task);
     }
 
@@ -76,7 +77,7 @@ public class TaskService {
     public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
         log.info("Updating task with id: {}", id);
         Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(TASK_NOT_FOUND + id));
 
         existingTask.setTitle(taskDTO.getTitle());
         existingTask.setDescription(taskDTO.getDescription());
@@ -102,7 +103,7 @@ public class TaskService {
     public void deleteTask(Long id) {
         log.info("Deleting task with id: {}", id);
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException(TASK_NOT_FOUND+ id));
 
         taskRepository.deleteById(id);
         log.info("Task deleted: {}", id);
