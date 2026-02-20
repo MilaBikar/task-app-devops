@@ -98,6 +98,7 @@ services:
     container_name: prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
     networks:
@@ -113,6 +114,8 @@ services:
       - microservices-network
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
 
   #microservices
   gateway:
@@ -232,3 +235,5 @@ volumes:
   user_data:
   notification_data:
   analytics_data:
+  grafana-data:
+  prometheus-data:
