@@ -36,4 +36,3 @@ jobs:
               }
               if (-not $up) { throw "Service on port $port did not become healthy" }
           }
-      
